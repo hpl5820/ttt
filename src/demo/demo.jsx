@@ -11,8 +11,8 @@ export default function Demo() {
     rightBottom: "right bottom",
     center: "50% 50%",
   };
-  const [boxArrowStyle, setBoxArrowStyle] = useState(null);
-  let rect;
+  const [boxArrowStyle, setBoxArrowStyle] = useState("center");
+  let rect,dot;
   let offsetLeft = useRef(0);
   let offsetTop = useRef(0);
   let originX = null;
@@ -22,38 +22,20 @@ export default function Demo() {
   const handleMouseDown = (e) => {
     offsetLeft.current = e.clientX - boxRef.current.offsetLeft;
     offsetTop.current = e.clientY - boxRef.current.offsetTop;
+    // originX = e.clientX;
+    // originY = e.ciientY;
     originX = boxRef.current.offsetWidth;
     originY = boxRef.current.offsetHeight;
-    console.log("鼠标：", e.clientX, "盒子", boxRef.current.offsetLeft);
-
+    console.log("鼠标：", e.clientX, "盒子", rect.left);
+console.log(boxArrowStyle)
     // 四角
-    if (offsetLeft.current < 5 && offsetTop.current < 5) {
-      console.log("左上");
-      setBoxArrowStyle("rightBottom");
-    } else if (
-      offsetLeft.current + 5 >= boxRef.current.clientWidth &&
-      offsetTop.current + 5 >= boxRef.current.clientHeight
-    ) {
-      console.log("右下");
-
-      setBoxArrowStyle("leftTop");
-    } else if (
-      offsetLeft.current < 5 &&
-      offsetTop.current + 5 >= boxRef.current.clientHeight
-    ) {
-      console.log("左下");
-      setBoxArrowStyle("rightTop");
-    } else if (
-      offsetTop.current < 5 &&
-      offsetLeft.current + 5 >= boxRef.current.clientWidth
-    ) {
-      console.log("右上", originX, originY);
-      setBoxArrowStyle("leftBottom");
-    } else {
+    if(boxArrowStyle == "center"){
       setIsDragging(true); // 鼠标按下时设置拖拽状态为true
-      // setBoxArrowStyle("center");
+      setBoxArrowStyle("center");
       console.log("非四角");
     }
+
+    
   };
 
   const handleMouseMove = (e) => {
@@ -66,8 +48,19 @@ export default function Demo() {
       return;
     }
     if (typeof originX == "number" && boxArrowStyle === "rightBottom") {
-      currentX = rect.right - e.clientX;
-      currentY = rect.bottom - e.clientY;
+      // currentX = rect.right - e.clientX;
+      // currentY = rect.bottom - e.clientY;
+      //直接计算长宽
+      let temp = dot[2]
+      dot[0]={x:e.clientX,y:e.clientY}
+      if(e.clientX>temp.x&&e.clientY>temp.y){
+        currentX = 0- Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
+        currentY =0- Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
+        
+      }else{
+      currentX = Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
+      currentY = Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
+    }
     } else if (typeof originX == "number" && boxArrowStyle === "leftBottom") {
       currentX = e.clientX - boxRef.current.offsetLeft;
       currentY = rect.bottom - e.clientY;
@@ -78,19 +71,27 @@ export default function Demo() {
       currentX = rect.right - e.clientX;
       currentY = e.clientY - rect.top;
     }
-    boxRef.current.style.transform = `scale(${currentX / originX}, ${currentY / originY})`;
+    console.log(currentY,originY)
+    boxRef.current.style.transform = `scale(${currentX / originX}, ${currentY / originY}) `;
   };
 
   const handleMouseUp = (e) => {
-    if(isDragging){
-      setBoxArrowStyle("center");
-    }
+    setBoxArrowStyle("center");
     setIsDragging(false); // 鼠标松开时设置拖拽状态为false
     originX = null;
     
   };
 
   useEffect(() => {
+    //获取圆心坐标
+    dot = document.getElementsByClassName("d")
+    dot = [...dot].map((rect)=>{
+      rect = rect.getBoundingClientRect()
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      return { x, y };
+    })
+    console.log(dot)
     let box = boxRef.current;
     if (box) {
       rect = box.getBoundingClientRect();
@@ -106,11 +107,21 @@ export default function Demo() {
   return (
     <div
       ref={boxRef}
-      style={{ transformOrigin: boxArrow[boxArrowStyle] }}
+      style={{ transformOrigin: boxArrow[boxArrowStyle],
+        rotate:"45deg"
+       }}
       onMouseDown={handleMouseDown}
       className="outer box"
     >
-      <div className="inner"></div>
+      <div className="inner">
+        <div className="d1 d" onClick={()=>setBoxArrowStyle(()=>{
+          console.log(123)
+          return "rightBottom"
+        })}></div>
+        <div className="d2 d" onClick={()=>setBoxArrowStyle("leftBottom")}></div>
+        <div className="d3 d" onClick={()=>setBoxArrowStyle("leftTop")} ></div>
+        <div className="d4 d" onClick={()=>setBoxArrowStyle("rightTop")} ></div>
+      </div>
     </div>
   );
 }
