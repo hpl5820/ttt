@@ -26,8 +26,8 @@ export default function Demo() {
     // originY = e.ciientY;
     originX = boxRef.current.offsetWidth;
     originY = boxRef.current.offsetHeight;
-    console.log("鼠标：", e.clientX, "盒子", rect.left);
-console.log(boxArrowStyle)
+//     console.log("鼠标：", e.clientX, "盒子", rect.left);
+// console.log(boxArrowStyle)
     // 四角
     if(boxArrowStyle == "center"){
       setIsDragging(true); // 鼠标按下时设置拖拽状态为true
@@ -51,15 +51,24 @@ console.log(boxArrowStyle)
       // currentX = rect.right - e.clientX;
       // currentY = rect.bottom - e.clientY;
       //直接计算长宽
-      let temp = dot[2]
-      dot[0]={x:e.clientX,y:e.clientY}
-      if(e.clientX>temp.x&&e.clientY>temp.y){
-        currentX = 0- Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
-        currentY =0- Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
+      // let temp = dot[2]
+      // dot[0]={x:e.clientX,y:e.clientY}
+    //   if(e.clientX>temp.x&&e.clientY>temp.y){
+    //     currentX = 0- Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
+    //     currentY =0- Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
         
-      }else{
-      currentX = Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
-      currentY = Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
+    //   }else{
+    //   currentX = Math.sqrt((dot[0].x-dot[1].x)**2+(dot[0].y-dot[1].y)**2)
+    //   currentY = Math.sqrt((dot[0].x-dot[3].x)**2+(dot[0].y-dot[3].y)**2)
+    // }
+    const x1=e.clientX,y1=e.clientY,x2=dot[1].x,y2=dot[1].y,x3=dot[3].x,y3=dot[3].y;
+    const k=(y3-y2)/(x3-x2)
+    const cx=((y1-y2)+k*x2+(x1/k))/(k+1/k)
+    const cy=y2+k*(cx-x2)
+    console.log(cx,cy,x1,y1)
+    // console.log("center",cx,cy)
+    if(x1>=cx){
+      // currentX
     }
     } else if (typeof originX == "number" && boxArrowStyle === "leftBottom") {
       currentX = e.clientX - boxRef.current.offsetLeft;
@@ -71,7 +80,7 @@ console.log(boxArrowStyle)
       currentX = rect.right - e.clientX;
       currentY = e.clientY - rect.top;
     }
-    console.log(currentY,originY)
+    // console.log(currentY,originY)
     boxRef.current.style.transform = `scale(${currentX / originX}, ${currentY / originY}) `;
   };
 
